@@ -1,0 +1,25 @@
+################################################################################################
+# This file contains user specific configuration
+# It may contains some directory definitions
+#
+##### Note : for all paths, use only absolute paths, and do not use anti slash : only '/' ######
+#
+################################################################################################
+
+
+##### Yadoms ######
+#
+#define Yadoms ROOT
+set(YADOMS_ROOT "/path/to/yadoms")
+
+
+##### Boost ######
+#
+#define Boost ROOT
+set(BOOST_ROOT "/path/to/boost")
+
+
+##### Poco ######
+#
+#define Poco ROOT
+set(POCO_ROOT "path/to/poco")
