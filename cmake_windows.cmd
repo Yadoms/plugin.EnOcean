@@ -52,7 +52,7 @@ goto:eof
 :: Function to find cmake executable
 :getCMakeExecutable
 @setlocal enableextensions enabledelayedexpansion
-set file=sources/CMakeListsUserConfig.txt
+set file=CMakeListsUserConfig.txt
 set key=ALTERNATIVE_CMAKE_ROOT
 set value=
 for /f "usebackq delims=" %%a in ("!file!") do (
