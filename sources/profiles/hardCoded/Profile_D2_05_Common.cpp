@@ -6,16 +6,41 @@
 #include <shared/Log.h>
 
 
+DECLARE_ENUM_IMPLEMENTATION_NESTED(CProfile_D2_05_Common::EAlarmAction, EAlarmAction,
+   ((noAction))
+   ((immediateStop))
+   ((goUp))
+   ((goDown))
+   ((noChange))
+);
+
+
 void CProfile_D2_05_Common::sendkGoToPositionAndAngle(boost::shared_ptr<IMessageHandler> messageHandler,
                                                       const std::string& senderId,
                                                       const std::string& targetId,
-                                                      boost::optional<unsigned int> verticalPosition,
-                                                      boost::optional<unsigned int> rotationAngle,
+                                                      boost::optional<yApi::historization::ECurtainCommand> curtain,
                                                       specificHistorizers::EBlindLockingMode lockingMode)
 {
    boost::dynamic_bitset<> userData(4 * 8);
-   bitset_insert(userData, 1, 7, verticalPosition ? verticalPosition.value() : 127);
-   bitset_insert(userData, 9, 7, rotationAngle ? rotationAngle.value() : 127);
+
+   unsigned int value = 127;
+   if (curtain)
+   {
+      switch (curtain.get())
+      {
+      case yApi::historization::ECurtainCommand::kOpenValue:
+         value = 100;
+         break;
+      case yApi::historization::ECurtainCommand::kCloseValue:
+         value = 0;
+         break;
+      default:
+         break;
+      }
+   }
+
+   bitset_insert(userData, 1, 7, value);
+   bitset_insert(userData, 9, 7, value);
    bitset_insert(userData, 17, 3, 0);
    bitset_insert(userData, 21, 3, lockingMode);
    bitset_insert(userData, 24, 4, 0);
@@ -59,13 +84,9 @@ void CProfile_D2_05_Common::sendQueryPositionAndAngle(boost::shared_ptr<IMessage
 }
 
 
-const boost::shared_ptr<yApi::historization::CDimmable> CProfile_D2_05_Common::noVerticalPosition = boost::shared_ptr<yApi::historization::CDimmable>();
-const boost::shared_ptr<yApi::historization::CDimmable> CProfile_D2_05_Common::noRotationAngle = boost::shared_ptr<yApi::historization::CDimmable>();
-
 std::vector<boost::shared_ptr<const yApi::historization::IHistorizable>> CProfile_D2_05_Common::extractReplyPositionAndAngleResponse(unsigned char rorg,
                                                                                                                                      const boost::dynamic_bitset<>& data,
-                                                                                                                                     boost::shared_ptr<yApi::historization::CDimmable> verticalPosition,
-                                                                                                                                     boost::shared_ptr<yApi::historization::CDimmable> rotationAngle,
+                                                                                                                                     boost::shared_ptr<yApi::historization::CCurtain> curtain,
                                                                                                                                      boost::shared_ptr<specificHistorizers::CBlindLockingMode> lockingMode)
 {
    // Some devices supports several RORG telegrams, ignore non-VLD telegrams
@@ -87,14 +108,13 @@ std::vector<boost::shared_ptr<const yApi::historization::IHistorizable>> CProfil
 
    if (position != 127)
    {
-      verticalPosition->set(position);
-      historizers.push_back(verticalPosition);
+      curtain->set(position > 50 ? yApi::historization::ECurtainCommand::kOpen : yApi::historization::ECurtainCommand::kClose);
+      historizers.push_back(curtain);
    }
-
-   if (angle != 127)
+   else if (angle != 127)
    {
-      rotationAngle->set(angle);
-      historizers.push_back(rotationAngle);
+      curtain->set(angle > 50 ? yApi::historization::ECurtainCommand::kOpen : yApi::historization::ECurtainCommand::kClose);
+      historizers.push_back(curtain);
    }
 
    switch (locking)

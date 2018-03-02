@@ -1,5 +1,6 @@
 #pragma once
 #include "../IType.h"
+#include "specificHistorizers/BlindLockingMode.h"
 
 
 class CProfile_D2_05_00 : public IType
@@ -31,6 +32,7 @@ public:
 
 private:
    const std::string m_deviceId;
-   boost::shared_ptr<yApi::historization::CSwitch> m_channel;
+   boost::shared_ptr<yApi::historization::CCurtain> m_curtain;
+   boost::shared_ptr<specificHistorizers::CBlindLockingMode> m_lockingMode;
    std::vector<boost::shared_ptr<const yApi::historization::IHistorizable>> m_historizers;
 };

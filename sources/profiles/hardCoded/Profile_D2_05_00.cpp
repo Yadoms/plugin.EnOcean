@@ -5,8 +5,9 @@
 CProfile_D2_05_00::CProfile_D2_05_00(const std::string& deviceId,
                                      boost::shared_ptr<yApi::IYPluginApi> api)
    : m_deviceId(deviceId),
-     m_dimmable(boost::make_shared<yApi::historization::CSwitch>("Channel", yApi::EKeywordAccessMode::kGetSet)),
-     m_historizers({m_channel})
+     m_curtain(boost::make_shared<yApi::historization::CCurtain>("Curtain")),
+     m_lockingMode(boost::make_shared<specificHistorizers::CBlindLockingMode>("lockingMode")),
+     m_historizers({m_curtain, m_lockingMode})
 {
 }
 
@@ -16,13 +17,13 @@ CProfile_D2_05_00::~CProfile_D2_05_00()
 
 const std::string& CProfile_D2_05_00::profile() const
 {
-   static const std::string profile("D2-01-00");
+   static const std::string profile("D2-05-00");
    return profile;
 }
 
 const std::string& CProfile_D2_05_00::title() const
 {
-   static const std::string title("Electronic switch with energy measurement and local control");
+   static const std::string title("Blinds control for position and angle");
    return title;
 }
 
@@ -36,10 +37,9 @@ void CProfile_D2_05_00::readInitialState(const std::string& senderId,
 {
    // Need to wait a bit between outgoing messages, to be sure to receive answer
    boost::this_thread::sleep(boost::posix_time::milliseconds(500));
-   CProfile_D2_05_Common::sendActuatorStatusQuery(messageHandler,
-                                                  senderId,
-                                                  m_deviceId,
-                                                  CProfile_D2_05_Common::kAllOutputChannels);
+   CProfile_D2_05_Common::sendQueryPositionAndAngle(messageHandler,
+                                                    senderId,
+                                                    m_deviceId);
 }
 
 std::vector<boost::shared_ptr<const yApi::historization::IHistorizable>> CProfile_D2_05_00::states(unsigned char rorg,
@@ -48,12 +48,10 @@ std::vector<boost::shared_ptr<const yApi::historization::IHistorizable>> CProfil
                                                                                                    const std::string& senderId,
                                                                                                    boost::shared_ptr<IMessageHandler> messageHandler) const
 {
-   return CProfile_D2_05_Common::extractActuatorStatusResponse(rorg,
-                                                               data,
-                                                               m_channel,
-                                                               CProfile_D2_05_Common::noDimmable,
-                                                               CProfile_D2_05_Common::noPowerFailure,
-                                                               CProfile_D2_05_Common::noOverCurrent);
+   return CProfile_D2_05_Common::extractReplyPositionAndAngleResponse(rorg,
+                                                                      data,
+                                                                      m_curtain,
+                                                                      m_lockingMode);
 }
 
 void CProfile_D2_05_00::sendCommand(const std::string& keyword,
@@ -61,21 +59,38 @@ void CProfile_D2_05_00::sendCommand(const std::string& keyword,
                                     const std::string& senderId,
                                     boost::shared_ptr<IMessageHandler> messageHandler) const
 {
-   if (keyword != m_channel->getKeyword())
+   if (keyword != m_curtain->getKeyword())
+   {
+      m_curtain->setCommand(commandBody);
+   }
+   else if (keyword != m_lockingMode->getKeyword())
+   {
+      m_lockingMode->setCommand(commandBody);
+   }
+   else
+   {
       return;
+   }
 
-   m_channel->setCommand(commandBody);
-
-   CProfile_D2_05_Common::sendActuatorSetOutputCommandSwitching(messageHandler,
-                                                                senderId,
-                                                                m_deviceId,
-                                                                CProfile_D2_05_Common::kAllOutputChannels,
-                                                                m_channel->get());
+   CProfile_D2_05_Common::sendkGoToPositionAndAngle(messageHandler,
+                                                    senderId,
+                                                    m_deviceId,
+                                                    m_curtain->get(),
+                                                    m_lockingMode->get());
 }
 
 void CProfile_D2_05_00::sendConfiguration(const shared::CDataContainer& deviceConfiguration,
                                           const std::string& senderId,
                                           boost::shared_ptr<IMessageHandler> messageHandler) const
 {
-   // Device supports no configuration
+   const auto measuredDurationOfVerticalRunMs = deviceConfiguration.get<unsigned int>("measuredDurationOfVerticalRunMs");
+   const auto measuredDurationOfRotationMs = deviceConfiguration.get<unsigned int>("measuredDurationOfRotationMs");
+   const auto alarmAction = deviceConfiguration.get<CProfile_D2_05_Common::EAlarmAction>("alarmAction");
+
+   CProfile_D2_05_Common::sendSetParameters(messageHandler,
+                                            senderId,
+                                            m_deviceId,
+                                            measuredDurationOfVerticalRunMs,
+                                            measuredDurationOfRotationMs,
+                                            alarmAction);
 }

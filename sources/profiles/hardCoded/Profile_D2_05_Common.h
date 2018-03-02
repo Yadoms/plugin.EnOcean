@@ -17,22 +17,20 @@ public:
       kSetParameters = 0x05
    };
 
-   enum EAlarmAction
-   {
-      kNoAction = 0x00,
-      kImmediateStop = 0x01,
-      kGoUp = 0x02,
-      kGoDown = 0x03,
-      kNoChange = 0x07
-   };
+   DECLARE_ENUM_HEADER(EAlarmAction,
+      ((noAction)(0))
+      ((immediateStop)(1))
+      ((goUp)(2))
+      ((goDown)(3))
+      ((noChange)(4))
+   ) ;
 
    // CMD 0x1 - Actuator Set Output
    static void sendkGoToPositionAndAngle(boost::shared_ptr<IMessageHandler> messageHandler,
                                          const std::string& senderId,
                                          const std::string& targetId,
-                                         boost::optional<unsigned int> verticalPosition,
-                                         boost::optional<unsigned int> rotationAngle,
-                                         specificHistorizers::EBlindLockingMode lockingMode = specificHistorizers::EBlindLockingMode::kDoNotChangeOrNoLock);
+                                         boost::optional<yApi::historization::ECurtainCommand> curtain,
+                                         specificHistorizers::EBlindLockingMode lockingMode);
 
    // CMD 0x2 - Stop
    static void sendStop(boost::shared_ptr<IMessageHandler> messageHandler,
@@ -49,8 +47,7 @@ public:
    static const boost::shared_ptr<yApi::historization::CDimmable> noRotationAngle;
    static std::vector<boost::shared_ptr<const yApi::historization::IHistorizable>> extractReplyPositionAndAngleResponse(unsigned char rorg,
                                                                                                                         const boost::dynamic_bitset<>& data,
-                                                                                                                        boost::shared_ptr<yApi::historization::CDimmable> verticalPosition,
-                                                                                                                        boost::shared_ptr<yApi::historization::CDimmable> rotationAngle,
+                                                                                                                        boost::shared_ptr<yApi::historization::CCurtain> curtain,
                                                                                                                         boost::shared_ptr<specificHistorizers::CBlindLockingMode> lockingMode);
 
    // CMD 0x05 - Set parameters

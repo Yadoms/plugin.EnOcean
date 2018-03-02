@@ -11,12 +11,14 @@ namespace specificHistorizers
       ((Deblockage))
    );
 
+   DECLARE_CAPACITY(BlindLockingModeCapacity,
+      "BlindLockingMode",
+      shared::plugin::yPluginApi::CStandardUnits::NoUnit(),
+      shared::plugin::yPluginApi::EKeywordDataType::kEnum);
 
    CBlindLockingMode::CBlindLockingMode(const std::string& keywordName)
       : CSingleHistorizableData<EBlindLockingMode>(keywordName,
-                                                   shared::plugin::yPluginApi::CStandardCapacity("BlindLockingMode",
-                                                                                                 shared::plugin::yPluginApi::CStandardUnits::NoUnit(),
-                                                                                                 shared::plugin::yPluginApi::EKeywordDataType::kEnum),
+                                                   BlindLockingModeCapacity(),
                                                    shared::plugin::yPluginApi::EKeywordAccessMode::kGetSet)
    {
    }
