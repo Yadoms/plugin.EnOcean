@@ -1,41 +1,10 @@
 ################################################################################################
 # This file contains user specific configuration
-# It may contains some directory definitions
+# It contains the installation directory of the Plugin SDK
 #
 ##### Note : for all paths, use only absolute paths, and do not use anti slash : only '/' ######
 #
 ################################################################################################
 
 
-##### Yadoms ######
-#
-#define Yadoms ROOT
-set(YADOMS_ROOT "/path/to/yadoms")
-
-
-##### Boost ######
-#
-#define Boost ROOT
-set(BOOST_ROOT "/path/to/boost")
-
-
-##### Poco ######
-#
-#define Poco ROOT
-set(POCO_ROOT "path/to/poco")
-
-
-##### OpenSSL ######
-#
-#define OpenSSL ROOT
-set(OPENSSL_ROOT "path/to/openssl")
-
-
-##### Protobuf ######
-#
-#define Protobuf ROOT
-set(PROTOBUF_ROOT "path/to/protobuf")
-#
-# if ON, then use path of generated file in case "make install" of protobuf has been done into a custom folder
-# this is very usefull, and bypass bad finding protobuf with cmake < 3.9
-#set(PROTOBUF_INSTALLED_TO_CUSTOM_DIRECTORY ON)
+set(YADOMS_PLUGIN_SDK_ROOT "/path/to/SDK")
