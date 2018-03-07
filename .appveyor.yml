@@ -43,11 +43,13 @@ before_build:
   # Create solution
   - ps: echo "Create solution..."
   - cmd: cmake_windows.cmd
+  - cmd: dir
+  - cmd: dir projects
   
   
 build:
   parallel: false
-  project: projects/plugin-EnOcean.sln
+  project: projects/enOcean.sln
 
   # MSBuild verbosity level
   verbosity: normal
