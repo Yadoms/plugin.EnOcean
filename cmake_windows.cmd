@@ -53,7 +53,7 @@ goto:eof
 :getCMakeExecutable
 @setlocal enableextensions enabledelayedexpansion
 set file=CMakeListsUserConfig.txt
-set key=ALTERNATIVE_CMAKE_ROOT
+set key=YADOMS_PLUGIN_SDK_ROOT
 set value=
 for /f "usebackq delims=" %%a in ("!file!") do (
    set ln=%%a
@@ -72,7 +72,7 @@ if [!value!] == [] (
    echo Use cmake from PATH
    endlocal&set "%~1=cmake"
 ) else (
-   echo Use cmake from "%value%"
-   endlocal&set "%~1=%value%/bin/cmake"
+   echo Use cmake from SDK [%value%]
+   endlocal&set "%~1=%value%/libs/cmake/bin/cmake"
 )
 goto:eof
