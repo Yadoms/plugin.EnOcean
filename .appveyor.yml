@@ -47,7 +47,7 @@ before_build:
   
 build:
   parallel: false
-  project: projects/enOcean.sln
+  project: projects/plugin.EnOcean.sln
 
   # MSBuild verbosity level
   verbosity: normal
